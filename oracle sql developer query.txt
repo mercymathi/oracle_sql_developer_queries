@@ -1,0 +1,136 @@
+-----------------------oracle sql developer queries----------------------
+
+
+select * from city;
+select * from country;
+select * from state;
+
+--simple select statements
+
+select state_name from state
+where state_id = '1';
+
+
+-------sysdate
+select sysdate from dual;
+
+-------orderby
+
+select city_name from city
+where state_id = '2'
+order by city_name;
+
+CREATE TABLE product_table (product_id number(10)Primary Key NOT NULL,
+                        product_name varchar2(50) NOT NULL,
+                        product_category varchar2(50) NOT NULL,
+                        product_cost varchar2(50) NOT NULL,
+                        price varchar2(50) NOT NULL);
+                        
+insert into product_table values (10,'Sofa','Furniture',50000,55000);
+insert into product_table values (11,'dining table','Furniture',25000,28000);
+insert into product_table values (12,'chimney','appliances',15000,20000);
+insert into product_table values (13,'tv','appliances',100000,150000);
+insert into product_table values (14,'speakers','appliances',5000,5500);
+
+select * from product_table;
+
+------simple select deriving new columns-----
+
+select product_name,price-product_cost as profit from product_table;
+
+
+select product_name,price-product_cost as profit 
+from product_table
+order by profit;
+
+------simple sub queries--------
+select product_name,price
+from product_table
+where price < (select price from product_table where product_name = 'speakers');
+
+------aggregated query---------
+select * from product_table
+where product_cost > 50000;
+
+select min(price) from product_table;
+select max(price) from product_table;
+
+
+select product_cost, max(price)
+from product_table 
+group by product_cost;
+
+----------*********------------------
+--sql joins in city,state,country table-----
+select * from city;
+select * from country;
+select * from state;
+--simple joins-----
+select city_name,state_name
+from city inner join state on state.state_id = city.state_id;
+
+----sub query with group by in employee table-----
+
+--1) display dept name,job role and no of employees:
+--[joining 3 tables(department,employee,job)]-----
+
+select dept_name,job_role,count(emp_id)
+from dept inner join employee on
+dept.dept.id = employee.dept_id inner join 
+jobs on jobs.job_id = employee.job_id
+group by dept_name,job_role;
+
+---2)Find the employee who gets maximum salary in the entire company:
+----[extracting only one person]-----
+
+select emp_name,max(emp_salary)
+from employee
+group by (emp_name);
+
+---OR----
+
+select emp_name from employee
+where emp_salary = (select max(emp_salary) from employee);
+
+
+-----sub query from HAVING class with department,employee,job tables-----
+
+-----display dept name, no of employees (consider only dept which has more than 2 employees)-----
+
+select dept_name,count(emp_id)
+from department d inner join employee e on d.dept_id = e.dept_id
+group by dept_name
+having count(emp_id) > 2;
+
+---------RANK OVER QUERY from city,state,country table---------
+
+select city_name,city_population,Rank()over(order by city_population Desc) Ranking
+from city;
+
+
+---------DENSE RANK QUERY from city,state,country table---------
+
+select city_name,city_population,Rank()over (order by city_population DESC) Ranking,DENSE_RANK() over (order by city_population DESC) Dense_Ranking
+from city;
+
+
+---------OVER PARTITION from city,state,country table---------
+
+select state_name,city_name,city_population,sum(city_population)over()as overall_population,sum(city_population) over (partition by state_name) as state_population
+from city inner join state on city.state_id=state.state_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
